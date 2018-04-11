@@ -32,11 +32,13 @@ const parser = new readLine({
 // Read data that is available on the serial port and send it to the websocket
 serial.pipe(parser);
 parser.on('data', function(data) { // on data from the arduino
+  // console.log(data);
   if(data=='rst'){  // if its the 'rst' string call reset
     io.emit('reset');
-  }else{ // any other data we try to forward by spliting it
-    var transmitData = [data.split(',')[0],data.split(',')[1]];
-    io.emit('new-pos', transmitData);
+  } else{ // any other data we try to forward by spliting it
+     var transmitData = [data.split(',')[0],data.split(',')[1],data.split(',')[2]];
+     var mode = data.split(',')[3]
+    io.emit('new-pos', transmitData, mode);
   }
 });
 //----------------------------------------------------------------------------//
@@ -47,7 +49,14 @@ parser.on('data', function(data) { // on data from the arduino
 // as long as someone is connected, listen for messages
 io.on('connect', function(socket) {
   console.log('a user connected');
-  io.emit('reset'); // call reset to make sure the website is clean
+  // io.emit('reset'); // call reset to make sure the website is clean
+
+  // Testing mapping to canvas position
+  // io.emit('new-pos', [0, 0]);
+  // io.emit('new-pos', [0, 1023]);
+  // io.emit('new-pos', [1023,0]);
+  // io.emit('new-pos', [1023,1023]);
+
 
 // if you get the 'disconnect' message, say the user disconnected
   io.on('disconnect', function() {
